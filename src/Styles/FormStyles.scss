@@ -1,0 +1,51 @@
+@import "./Variables.scss";
+
+form {
+  .row:not(:last-child) {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  input,
+  label {
+    font-size: 1.2rem;
+  }
+
+  label {
+    margin-bottom: 0.5rem;
+  }
+
+  input {
+    padding: 0.4rem;
+    border-radius: $border-radius;
+    border: 1px solid $primary-color;
+  }
+
+  .form-btn {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.5rem;
+    cursor: pointer;
+  }
+
+  .form-footer {
+    font-size: 1rem;
+    margin-top: 1rem;
+
+    .form-footer-link {
+      font-weight: 600;
+      color: $primary-color;
+    }
+  }
+
+  .error-message {
+    color: $error-color;
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+  }
+
+  .input-error {
+    border-color: $error-color;
+  }
+}

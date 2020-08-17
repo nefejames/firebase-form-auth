@@ -1,0 +1,17 @@
+@import "../../Styles/Variables.scss";
+
+.homepage {
+  h1 {
+    color: $primary-color;
+    font-size: calc(1.7rem + 0.2vw);
+  }
+
+  .buttons-container {
+    display: flex;
+    margin-top: 1.5rem;
+
+    button:first-child {
+      margin-right: 1rem;
+    }
+  }
+}
