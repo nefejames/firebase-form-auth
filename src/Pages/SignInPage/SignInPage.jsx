@@ -1,10 +1,14 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, Redirect } from "react-router-dom";
 import * as EmailValidator from "email-validator";
+import { auth } from "../../FirebaseConfig";
+import UserContext from "../../UserContext";
 
 import "../../Styles/FormStyles.scss";
 
-const SignInForm = () => {
+const SignInForm = ({ history }) => {
+  const userLoggedIn = useContext(UserContext);
+
   const initialValues = {
     email: "",
     password: "",
@@ -48,14 +52,20 @@ const SignInForm = () => {
 
     const isValid = validateForm();
 
-    if (!isValid) {
-      console.log(formErrors);
-    } else {
+    if (isValid) {
       console.log(formValues);
+
+      auth.signInWithEmailAndPassword(email, password).catch((error) => {
+        history.push("/login");
+      });
       setFormValues(initialValues);
       setFormErrors(initialErrors);
     }
   };
+
+  if (userLoggedIn) {
+    return <Redirect to="/user" />;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -76,7 +86,7 @@ const SignInForm = () => {
         <div className="row">
           <label htmlFor="password">Password</label>
           <input
-            type="text"
+            type="password"
             name="password"
             value={password || ""}
             onChange={handleChange}

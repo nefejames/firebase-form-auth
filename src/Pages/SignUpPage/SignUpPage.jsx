@@ -1,29 +1,52 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, Redirect } from "react-router-dom";
 import * as EmailValidator from "email-validator";
-import firebase from "../../FirebaseConfig";
+import UserContext from "../../UserContext";
+import { auth, generateUserDocument } from "../../FirebaseConfig";
 
 const SignUpForm = () => {
+  const userLoggedIn = useContext(UserContext);
+
   const initialValues = {
     firstName: "",
     lastName: "",
     email: "",
     password: "",
+    displayName: "",
+    phoneNumber: "",
+    createdAt: new Date(),
   };
+
   const initialErrors = {};
 
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState(initialErrors);
-  const { firstName, lastName, email, password } = formValues;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    displayName,
+    phoneNumber,
+  } = formValues;
 
   const validateForm = () => {
-    if (!firstName || !lastName || !email || !password) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !displayName ||
+      !phoneNumber
+    ) {
       setFormErrors({
         ...formErrors,
         firstName: "First name is required",
         lastName: "Last name is required",
         email: "Email is required",
         password: "Password is required",
+        userName: "Username is required",
+        phoneNumber: "required",
       });
       return false;
     }
@@ -40,32 +63,40 @@ const SignUpForm = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  //handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const isValid = validateForm();
 
-    if (!isValid) {
-      console.log(formErrors);
-    } else {
-      console.log(formValues);
+    if (isValid) {
+      try {
+        const { user } = await auth.createUserWithEmailAndPassword(
+          email,
+          password
+        );
+        await generateUserDocument(user, formValues);
 
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .catch((error) => {
-          console.log(error);
-        });
-      setFormValues(initialValues);
-      setFormErrors(initialErrors);
+        setFormValues(initialValues);
+        setFormErrors(initialErrors);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
+  //handle user inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormValues({ ...formValues, [name]: value });
+    setFormValues({
+      ...formValues,
+      [name]: value,
+    });
   };
+
+  if (userLoggedIn) {
+    return <Redirect to="/user" />;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -96,6 +127,34 @@ const SignUpForm = () => {
           />
           {formErrors.lastName && (
             <span className="error-message">{formErrors.lastName}</span>
+          )}
+        </div>
+        <div className="row">
+          <label htmlFor="lastName">Username</label>
+          <input
+            type="text"
+            id="lastName"
+            name="displayName"
+            value={displayName || ""}
+            onChange={handleChange}
+            className={formErrors.displayName && "input-error"}
+          />
+          {formErrors.displayName && (
+            <span className="error-message">{formErrors.displayName}</span>
+          )}
+        </div>
+        <div className="row">
+          <label htmlFor="phoneNumber">Phone</label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={phoneNumber || ""}
+            onChange={handleChange}
+            className={formErrors.phoneNumber && "input-error"}
+          />
+          {formErrors.phoneNumber && (
+            <span className="error-message">{formErrors.phoneNumber}</span>
           )}
         </div>
         <div className="row">
